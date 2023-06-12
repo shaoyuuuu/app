@@ -6,7 +6,12 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    name: "home",
+    redirect:'login'
+  },
+  {
+    path:'/login',
+    name:'login',
+    component:()=>import("@/components/login.vue")
   },
   {
     path: "/admin",
@@ -25,6 +30,11 @@ const routes = [
         name: "manage",
         meta: "用户管理",
         component: () => import("@/components/admin/userManage.vue"),
+        children:[
+          {
+            path:''
+          }
+        ]
       },
       {
         path: "activities1",
@@ -56,7 +66,7 @@ const routes = [
 ];
 
 const router = new VueRouter({
-  mode: "history",
+  mode: "hash",
   routes,
 });
 
