@@ -4,24 +4,15 @@
     <el-header class="header-container">
       <h3 class="logo">山友缘后台管理</h3>
       <div class="msg-col">
-        <a href="javascript:"><span>管理员 {{ adminName }}</span></a>
-        <a href="javascript:">退出登录</a>
+        <a href="javascript:"><span>管理员 {{ userInfo.nickName }}</span></a>
+        <a href="javascript:" @click="loginOut(userInfo.id, userInfo.type)">退出登录</a>
       </div>
     </el-header>
     <el-container style="height: 100%;">
       <!-- 侧边栏 -->
-      <el-aside width="250px"
-                class="aside-container"
-                style="height: 100%;">
-        <el-menu default-active="2"
-                 router
-                 class="el-menu-vertical-demo"
-                 @open="handleOpen"
-                 @close="handleClose"
-                 background-color="#545c64"
-                 text-color="#fff"
-                 active-text-color="#ffd04b"
-                 style="overflow: hidden;height: 100%;">
+      <el-aside width="250px" class="aside-container" style="height: 100%;">
+        <el-menu default-active="2" router class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
+          background-color="#545c64" text-color="#fff" active-text-color="#ffd04b" style="overflow: hidden;height: 100%;">
           <el-menu-item index="/admin">
             <template slot="title">
               <i class="el-icon-location"></i>
@@ -58,16 +49,14 @@
       <el-main class="main-container">
         <!-- 面包屑 -->
         <el-breadcrumb separator=">">
-          <el-breadcrumb-item v-for="(item,index) in breadList"
-                              :key="index"
-                              :to="{ path: item.path }">{{ item.meta }}</el-breadcrumb-item>
+          <el-breadcrumb-item v-for="(item, index) in breadList" :key="index" :to="{ path: item.path }">{{ item.meta
+          }}</el-breadcrumb-item>
         </el-breadcrumb>
         <!-- 路由组件 -->
         <div class="router-container">
-          <div v-if="isHome(this.$route)"
-               class="index">
+          <div v-if="isHome(this.$route)" class="index">
             <h1>欢迎来到山友缘</h1>
-            <h1>欢迎您，管理员{{ adminName }}</h1>
+            <h1>欢迎您，管理员{{ userInfo.nickName }}</h1>
           </div>
           <router-view></router-view>
         </div>
@@ -76,12 +65,12 @@
     </el-container>
   </el-container>
 </template>
-7
 <script>
+import { mapGetters } from 'vuex';
+import { loginOutLS } from '@/utils/loginOut'
 export default {
   data() {
     return {
-      adminName: 'abo',
       //用于动态生成面包屑
       breadList: [],
     }
@@ -91,6 +80,9 @@ export default {
     $route() {
       this.getBreadcrumb()
     },
+  },
+  computed: {
+    ...mapGetters(['userInfo']),
   },
   methods: {
     handleOpen(key, keyPath) {
@@ -110,10 +102,20 @@ export default {
       }
       this.breadList = matched
     },
+    //管理员退出登录
+    async loginOut(id, type) {
+      let res = await this.$store.dispatch('userLoginOut', { id: id, type: type })
+      if (res == 'ok') {
+        this.$router.replace('/login')
+      }
+    }
   },
   created() {
     this.getBreadcrumb()
   },
+  mounted() {
+    history.pushState(null, null, document.URL)
+  }
 }
 </script>
 
@@ -123,33 +125,40 @@ export default {
   height: 100%;
   background-color: #f6f8fa;
 }
+
 .header-container {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   background-color: #545c64;
   box-shadow: 0px 5px 5px #afc4d9;
+
   .logo {
     display: block;
     padding-left: 15px;
     color: aliceblue;
     font-size: 22px;
   }
+
   .msg-col {
     margin-left: auto;
+
     a {
       margin-right: 10px;
       color: aliceblue;
     }
   }
 }
+
 .aside-container {
+  z-index: 999;
 }
 
 .main-container {
   background-color: #f6f8fa;
   display: flex;
   flex-direction: column;
+
   .el-breadcrumb {
     background-color: #fff;
     display: flex;
@@ -158,17 +167,20 @@ export default {
     padding: 10px 0;
     margin-bottom: 20px;
   }
+
   .router-container {
     background-color: #fff;
     display: flex;
     justify-content: center;
     align-content: center;
     flex: 1;
+
     .index {
       height: 500px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+
       h1 {
         margin-bottom: 60px;
         font-size: 32px;

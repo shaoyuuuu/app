@@ -9,8 +9,8 @@
         </div>
         <img :src="item.img" alt="" class="activitie-img">
         <div class="activitie-info">
-          <h1>{{ item.content.title }}</h1>
-          <p><b>简介：</b>{{ item.content.synopsis }}</p>
+          <h1>标题：{{ item.activity_content.title }}</h1>
+          <p><b>简介：</b>{{ item.activity_content.synopsis }}</p>
           <span><b>人数：</b>{{ item.max }}人</span>
           <span><b>活动时间：</b>{{item.startTime}}至{{ item.endTime }}</span>
         </div>
@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -36,44 +37,12 @@ export default {
       timer: null,
       //当前时间
       nowTime: this.$moment(),
-      //登山活动列表
-      activityList: [
-        {
-          id: '1',
-          adminId: '1',
-          adminName: 'zs',
-          img:require('D:/WebLearn/shanYouYuan/app/public/image/logo.png'),
-          createTime: '2023-6-10',//发布时间
-          startTime: '2023-6-13',//开始时间
-          endTime: '2023-6-15',//结束时间
-          state: 0,//0未发布，1报名中，2进行中，3已结束
-          content: {
-            title: '去青城山',
-            synopsis: '体验道家风采',//简介
-          },
-          max: 50,//最大人数
-          applicant: 48,//报名人数
-        },
-        {
-          id: '2',
-          adminId: '2',
-          adminName: 'admin',
-          img:require('D:/WebLearn/shanYouYuan/app/public/image/logo.png'),
-          createTime: '2023-6-12',//发布时间
-          startTime: '2023-6-15',//开始时间
-          endTime: '2023-6-18',//结束时间
-          state: 1,//0未发布，1报名中，2进行中，3已结束
-          content: {
-            title: '去青城山',
-            synopsis: '体验道家风采',//简介
-          },
-          max: 50,//最大人数
-          applicant: 48,//报名人数
-        }
-      ]
     }
   },
   methods: {
+    getActivityList(){
+      this.$store.dispatch('getActivityList','week')
+    },
     //获取某一时间与当前时间的差值
     getDiffToNowTime(endTime) {
       const diffTime = endTime.diff(this.nowTime);
@@ -92,23 +61,26 @@ export default {
         return stateObj
       } else if (item.state == 1) {
         stateObj.stateStr = `<h1 class="enroll">报名中</h1>`;
-        stateObj.time = `<p>${this.applicantTime(item.endTime)}<br>后结束报名</p>`;
+        stateObj.time = `<p>${this.applicantTime(item.startTime)}<br>后结束报名</p>`;
         return stateObj
       } else if (item.state == 2) {
         stateObj.stateStr=`<h1 class="progress">进行中</h1>`
-        stateObj.time=`<p>{{ nextSatTime }}<br>后结束活动</p>`
+        stateObj.time=`<p>将于${item.endTime}<br>后结束活动</p>`
         return stateObj
       } else if (item.state == 3) {
         stateObj.stateStr=`<h1 class="finished">已结束</h1>`;
-        stateObj.time=`<p>结束时间：<br>{{item.endTime}}</p>`
+        stateObj.time=`<p>已于${item.endTime}<br>结束活动</p>`
+        return stateObj
       } else throw new Error('获取活动状态出错')
     },
+    //获取报名时间
     applicantTime(endTimeStr){
       const endTime = this.$moment(endTimeStr).startOf('day');
       return this.getDiffToNowTime(endTime)
-    }
+    },
   },
   computed: {
+    ...mapGetters(['activityList']),
     nextSatTime() {
       let days = 6;
       //获取下周6时间
@@ -127,6 +99,9 @@ export default {
       clearInterval(this.timer)
     }
   },
+  mounted(){
+    this.getActivityList();
+  }
 }
 </script>
 

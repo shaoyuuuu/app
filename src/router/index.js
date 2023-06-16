@@ -1,73 +1,25 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-
+import routes from "./routes";
+import store from "@/store";
 Vue.use(VueRouter);
 
-const routes = [
-  {
-    path: "/",
-    redirect:'login'
-  },
-  {
-    path:'/login',
-    name:'login',
-    component:()=>import("@/components/login.vue")
-  },
-  {
-    path: "/admin",
-    name: "admin",
-    meta: "首页",
-    component: () => import("../views/Admin.vue"),
-    children: [
-      {
-        path: "changePwd",
-        name: "changePwd",
-        meta: "修改密码",
-        component: () => import("../components/admin/changePwd.vue"),
-      },
-      {
-        path: "manage",
-        name: "manage",
-        meta: "用户管理",
-        component: () => import("@/components/admin/userManage.vue"),
-        children:[
-          {
-            path:''
-          }
-        ]
-      },
-      {
-        path: "activities1",
-        name: "activities1",
-        meta: "登山活动管理",
-        component: () => import("@/components/admin/activities1.vue"),
-      },
-      {
-        path: "activities2",
-        name: "activities2",
-        meta: "中长途活动管理",
-        component: () => import("@/components/admin/activities2.vue"),
-      },
-
-      {
-        path: "audit",
-        name: "audit",
-        meta: "内容审计",
-        component: () => import("@/components/admin/audit.vue"),
-      },
-      {
-        path: "setting",
-        name: "setting",
-        meta: "系统管理",
-        component: () => import("@/components/admin/setting.vue"),
-      },
-    ],
-  },
-];
-
 const router = new VueRouter({
-  mode: "hash",
   routes,
 });
-
+//全局路由，前置守卫
+router.beforeEach(async (to, from, next) => {
+  let token = await store.state.login_register.token;
+  let userInfo = await store.state.login_register.userInfo;
+  if (token && userInfo) {
+    let { id, nickName, type } = userInfo;
+    if (to.path == "/login") {
+      if (!localStorage.getItem("TOEKN")) {
+        next();
+      } else next(false);
+    } else next();
+  } else {
+    next();
+  }
+});
 export default router;

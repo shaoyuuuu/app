@@ -10,7 +10,6 @@ import moment from "moment";
 moment.locale('zh-cn')
 Vue.prototype.$moment = moment;
 
-
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 new Vue({
@@ -18,3 +17,5 @@ new Vue({
   store,
   render: (h) => h(App),
 }).$mount("#app");
+
+export default Vue;

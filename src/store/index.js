@@ -1,17 +1,11 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
-Vue.use(Vuex)
-
+import Vue from "vue";
+import Vuex from "vuex";
+Vue.use(Vuex);
+import admin from "./admin";
+import login_register from "./login_register";
 export default new Vuex.Store({
-  state: {
-  },
-  getters: {
-  },
-  mutations: {
-  },
-  actions: {
-  },
   modules: {
-  }
-})
+    admin,
+    login_register,
+  },
+});
