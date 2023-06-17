@@ -116,7 +116,7 @@ export default {
     successTip() {
       this.$message({
         showClose: true,
-        duration: 100,
+        duration: 1500,
         message: '登录成功，山友缘欢迎您',
         type: 'success'
       })

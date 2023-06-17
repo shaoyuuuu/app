@@ -33,7 +33,6 @@ export default {
     ...mapGetters(['userInfo']),
   },
   mounted() {
-    console.log(this.userInfo)
   },
 }
 </script>

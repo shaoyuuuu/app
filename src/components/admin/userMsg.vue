@@ -11,7 +11,6 @@ export default {
   },
   props:['userData'],
   created(){
-    console.log(this.userData);
   }
 
 }

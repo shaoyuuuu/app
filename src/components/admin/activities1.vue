@@ -2,7 +2,7 @@
   <div class="activities1-container">
     <h1 class="title">登山活动-周六自动发布</h1>
     <div class="activities-list">
-      <el-button class="add-activitie" type="warning" icon="el-icon-plus">创建登山活动</el-button>
+      <el-button class="add-activitie" type="warning" icon="el-icon-plus" @click="showForm">创建登山活动</el-button>
       <div class="list-item" v-for="(item) in activityList" :key="item.id">
         <div class="create">
           创建人：{{ item.adminName }}
@@ -12,7 +12,7 @@
           <h1>标题：{{ item.activity_content.title }}</h1>
           <p><b>简介：</b>{{ item.activity_content.synopsis }}</p>
           <span><b>人数：</b>{{ item.max }}人</span>
-          <span><b>活动时间：</b>{{item.startTime}}至{{ item.endTime }}</span>
+          <span><b>活动时间：</b>{{ item.startTime }}至{{ item.endTime }}</span>
         </div>
         <div class="activitie-state" v-html="getActivityState(item).stateStr">
         </div>
@@ -24,12 +24,15 @@
         </div>
       </div>
     </div>
+    <el-dialog title="添加登山活动" :visible.sync="dialogFormVisible" class="addActivityForm">
+      <addActivities type="1" ref="addForm" @success="addSuccess"></addActivities>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-
+import addActivities from '@/components/admin/addActivities.vue'
 export default {
   data() {
     return {
@@ -37,11 +40,12 @@ export default {
       timer: null,
       //当前时间
       nowTime: this.$moment(),
+      dialogFormVisible: false
     }
   },
   methods: {
-    getActivityList(){
-      this.$store.dispatch('getActivityList','week')
+    getActivityList() {
+      this.$store.dispatch('getActivityList', 'week')
     },
     //获取某一时间与当前时间的差值
     getDiffToNowTime(endTime) {
@@ -64,30 +68,46 @@ export default {
         stateObj.time = `<p>${this.applicantTime(item.startTime)}<br>后结束报名</p>`;
         return stateObj
       } else if (item.state == 2) {
-        stateObj.stateStr=`<h1 class="progress">进行中</h1>`
-        stateObj.time=`<p>将于${item.endTime}<br>后结束活动</p>`
+        stateObj.stateStr = `<h1 class="progress">进行中</h1>`
+        stateObj.time = `<p>将于${item.endTime}<br>后结束活动</p>`
         return stateObj
       } else if (item.state == 3) {
-        stateObj.stateStr=`<h1 class="finished">已结束</h1>`;
-        stateObj.time=`<p>已于${item.endTime}<br>结束活动</p>`
+        stateObj.stateStr = `<h1 class="finished">已结束</h1>`;
+        stateObj.time = `<p>已于${item.endTime}<br>结束活动</p>`
         return stateObj
       } else throw new Error('获取活动状态出错')
     },
     //获取报名时间
-    applicantTime(endTimeStr){
+    applicantTime(endTimeStr) {
       const endTime = this.$moment(endTimeStr).startOf('day');
       return this.getDiffToNowTime(endTime)
     },
+    //添加活动成功后的回调
+    addSuccess(){
+      this.getActivityList();
+      this.dialogFormVisible=false;
+      this.$refs.addForm.$refs.form.resetFields();
+    },
+    showForm(){
+      this.dialogFormVisible = true
+    }
   },
   computed: {
     ...mapGetters(['activityList']),
     nextSatTime() {
       let days = 6;
+      let endTime;
+      if (this.$moment().day() == 6) {
+        endTime = this.$moment().day(days + 7).startOf('day');
+      } else {
+        endTime = this.$moment().day(days).startOf('day');
+      }
       //获取下周6时间
-      const endTime = this.$moment().day(days).startOf('day');
       return this.getDiffToNowTime(endTime)
     },
-    
+  },
+  components: {
+    addActivities,
   },
   created() {
     this.timer = setInterval(() => {
@@ -99,7 +119,7 @@ export default {
       clearInterval(this.timer)
     }
   },
-  mounted(){
+  mounted() {
     this.getActivityList();
   }
 }

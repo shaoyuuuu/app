@@ -28,7 +28,6 @@ request.interceptors.response.use(
   (res) => {
     nProgress.done();
     if(res.data.code==202){
-      console.log('res.data')
       Message({
         showClose: true,
         message: '用户已过期，请重新登录',

@@ -40,7 +40,6 @@ const actions = {
       });
       setToken(msg.token);
       localStorage.setItem("userInfo", JSON.stringify(userInfo));
-      console.log(JSON.parse(localStorage.getItem("userInfo")));
       return "ok";
     } else {
       return Promise.reject(new Error("false"));
@@ -48,7 +47,6 @@ const actions = {
   },
   //退出登录逻辑
   async userLoginOut({ commit },data) {
-    console.log(data)
     let result = await reqUserLoginOut(data);
     if (result.code == 200) {
       loginOutLS();
